@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:06:09 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/06 18:21:32 by thamon           ###   ########.fr       */
+/*   Updated: 2023/02/14 00:52:26 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 #define SERVER_HPP
 
 #include "config/getParams.hpp"
-#include "../users/user.hpp"
+#include "config/displayConsole.hpp"
+#include "../logger/logger.hpp"
+#include "../user/user.hpp"
 #include <string>
 #include <fcntl.h>
 #include <csignal>
@@ -33,25 +35,37 @@ class User;
 
 class Server
 {
-private:
-	GetParams config;
-	std::map<int, User *> users;
-	int sockfd;
+	private:
 
-	std::vector<pollfd> fds;
+		GetParams				config;
+		Logger					logger;
+		displayConsole			display;
+		int						sockfd;
 
-	void acceptUser();
-public:
-	Server();
-	~Server();
+		std::map<int, User *>	users;
+		std::vector<pollfd>		fds;
 
-	GetParams &getConfig();
+		int 					incrementation;
+	
+	private:
 
-	void init();
-	void execute();
+		void					acceptUser(void);
+		void					delUser(User &user);
+		void					displayUsers(std::vector<User *> users);
+		
+	public:
+	
+		Server(void);
+		~Server(void);
 
-	User *getUser(std::string name);
-	std::vector<User *> getUsers();
+		GetParams				&getConfig(void);
+		Logger					&getLogger(void);
+
+		void					init(void);
+		void					execute(void);
+
+		User *getUser(std::string name);
+		std::vector<User *> getUsers();
 };
 
 #endif

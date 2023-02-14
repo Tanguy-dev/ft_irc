@@ -5,14 +5,18 @@ OBJECT				=	objs
 
 SRCS_HPP			=	server/server.hpp			\
 						server/config/getParams.hpp	\
-						utils/utils.hpp				\
-						users/user.hpp
+						utils/utils.hpp \
+						user/user.hpp \
+						logger/logger.hpp			\
+						server/config/displayConsole.hpp
 
 SRCS_CPP			=	main.cpp					\
 						server/server.cpp			\
 						server/config/getParams.cpp	\
-						utils/utils.cpp				\
-						users/user.cpp
+						utils/utils.cpp \
+						user/user.cpp \
+						logger/logger.cpp			\
+						server/config/displayConsole.cpp
 
 CPP					=	clang++
 FLAGS				=	-Wall -Wextra -Werror -std=c++98
@@ -31,6 +35,7 @@ $(NAME): $(SRCS_CPP:%.cpp=$(OBJECT)/%.o)
 	@printf "\e[32m"
 	@printf "Build\t$@\n"
 	$(CPP) -o $@ $(SRCS_CPP:%.cpp=$(OBJECT)/%.o)
+	@printf "\033[1;37m"
 
 start: all
 	@printf "\e[0m"

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   user.hpp                                          :+:      :+:    :+:   */
+/*   user.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 00:34:54 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/04 00:38:10 by thamon           ###   ########.fr       */
+/*   Updated: 2023/02/14 01:46:37 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,22 +40,38 @@ enum userStatus
 class User
 {
 	friend class Server;
-
+	
 	private:
-		int sockfd;
 
-		userStatus status;
+		userStatus			status;
 
-		// std::string buffer;
-
-		std::string hostname;
-		std::string hostaddr;
-		std::string nickName;
-		std::string username;
-
+		std::string			buffer;
+	
+		std::string			nickname;
+		std::string			username;
+		int					sockfd;
+		
+		std::string			host_addr;
+		std::string			hostname;
+		
 	public:
-		User(int sockfd, struct sockaddr_in server_address);
-		~User();
+	
+		User(int sockfd, struct sockaddr_in const addr);
+		~User(void);
+
+
+		void		send(std::string const str) const;
+		void		readUserInfo(void);
+
+		// getters
+		std::string	getUsername(void) const;
+		std::string	getNickname(void) const;
+		std::string	getHostname(void) const;
+		userStatus	getStatus(void) const;
+		int			getFd(void) const;
+
+		// setters
+		void		setStatus(userStatus status) { this->status = status; }
 };
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: gadeneux <gadeneux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 20:41:38 by gadeneux          #+#    #+#             */
-/*   Updated: 2023/02/06 16:07:35 by thamon           ###   ########.fr       */
+/*   Updated: 2023/02/04 15:19:34 by gadeneux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     int sockfd, client_sockfd;
     struct sockaddr_in server_address, client_address;
     socklen_t client_len;
-
+    
     // Créer la socket
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
@@ -39,11 +39,11 @@ int main(int argc, char *argv[])
     // Configurer les détails de l'adresse pour la socket
     memset(&server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(6667);
+    server_address.sin_port = htons(6668);
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 
     // Lier la socket à l'adresse
-    if (bind(sockfd, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)
+    if (bind(sockfd, (struct sockaddr *) & server_address, sizeof(server_address)) < 0)
     {
         cerr << "ERROR: Ne peut pas lier la socket." << endl;
         return -1;
@@ -70,8 +70,9 @@ int main(int argc, char *argv[])
         char buffer[BUFSIZE];
         strcpy(buffer, "Bienvenue sur le serveur IRC!\r\n");
         send(client_sockfd, buffer, strlen(buffer), 0);
+        
 
-        // Recevoir des données du client
+         // Recevoir des données du client
         memset(buffer, 0, BUFSIZE);
         int n = read(client_sockfd, buffer, BUFSIZE - 1);
         if (n < 0)
@@ -82,9 +83,9 @@ int main(int argc, char *argv[])
         cout << "Message reçu du client: " << buffer << endl;
 
         // Envoyer une réponse au client
-        strcpy(buffer, "Message reçu");
-        std::cout << buffer << std::endl;
-        n = write(client_sockfd, buffer, strlen(buffer));
+        // strcpy(buffer, "Message reçu");
+        // std::cout << buffer << std::endl;
+        // n = write(client_sockfd, buffer, strlen(buffer));
         if (n < 0)
         {
             cerr << "ERROR: Ne peut pas envoyer de réponse au client." << endl;
@@ -94,6 +95,7 @@ int main(int argc, char *argv[])
         // Fermer la socket du client
         // close(client_sockfd);
     }
+
 
     // Fermer la socket du serveur
     close(sockfd);

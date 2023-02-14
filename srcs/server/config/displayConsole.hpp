@@ -1,37 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   displayConsole.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/03 23:39:29 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/14 00:35:20 by thamon           ###   ########.fr       */
+/*   Created: 2023/02/13 22:55:08 by thamon            #+#    #+#             */
+/*   Updated: 2023/02/13 23:00:44 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "server/server.hpp"
+#ifndef DISPLAYCONSOLE_HPP
+#define DISPLAYCONSOLE_HPP
 
-bool end = false;
+#include <iostream>
+#include <map>
 
-void signal_handler(int) { end = true; };
-
-int main(int ac, char **av)
+class displayConsole
 {
-	if (ac != 3)
-	{
-		std::cout << "./ircserv <port> <password>\n";
-		return (0);
-	}
+	
+	private:
+		std::map<unsigned char, std::string>	text;
+		void	display();
+		void	clear();
+		
+	public:
+	
+		displayConsole();
 
-	Server server = Server();
-	signal(SIGINT, signal_handler);
+		void	define(unsigned char i, std::string text);
+		void	deleteText(unsigned char i);
 
-	server.getConfig().set("port", av[1]);
-	server.getConfig().set("password", av[2]);
+};
 
-	server.init();
-	while (!end)
-		server.execute();
-	return (0);
-}
+#endif

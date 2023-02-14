@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.hpp                                          :+:      :+:    :+:   */
+/*   logger.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
+/*   By: gadeneux <gadeneux@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/03 23:51:03 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/14 01:49:36 by thamon           ###   ########.fr       */
+/*   Created: 2023/02/10 17:12:07 by gadeneux          #+#    #+#             */
+/*   Updated: 2023/02/10 17:28:19 by gadeneux         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
-
+#include "logger.hpp"
 #include <iostream>
-#include <string>
-#include <stdlib.h>
 
-void error(std::string message, bool stop);
-bool startWith(const std::string& str, const std::string& prefix);
+Logger::Logger(void)
+: print_info(true)
+{
 
-#endif
+}
+
+Logger::~Logger(void)
+{
+	
+}

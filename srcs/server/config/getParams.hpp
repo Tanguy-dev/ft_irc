@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:30:32 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/06 15:19:01 by thamon           ###   ########.fr       */
+/*   Updated: 2023/02/04 00:03:40 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,13 @@
 
 class GetParams
 {
-private:
-	std::map<std::string, std::string> values;
+	private:
+		std::map<std::string, std::string> values;
+	public:
+		GetParams();
 
-public:
-	GetParams();
-
-	void set(std::string name, std::string value);
-	std::string get(std::string name);
+		void		set(std::string name, std::string value);
+		std::string	get(std::string name);
 };
 
 #endif
