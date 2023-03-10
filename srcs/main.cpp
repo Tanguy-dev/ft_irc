@@ -6,11 +6,12 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:39:29 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/14 00:35:20 by thamon           ###   ########.fr       */
+/*   Updated: 2023/02/16 03:55:41 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "server/server.hpp"
+#include <csignal>
 
 bool end = false;
 

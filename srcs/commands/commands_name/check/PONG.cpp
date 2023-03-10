@@ -1,35 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   displayConsole.hpp                                :+:      :+:    :+:   */
+/*   PONG.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/13 22:55:08 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/13 23:00:44 by thamon           ###   ########.fr       */
+/*   Created: 2023/02/23 02:30:08 by thamon            #+#    #+#             */
+/*   Updated: 2023/02/23 02:52:10 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DISPLAYCONSOLE_HPP
-#define DISPLAYCONSOLE_HPP
+#include "../../commands.hpp"
 
-#include <iostream>
-#include <map>
-
-class DisplayConsole
+void PONG(Commands *command)
 {
-	
-	private:
-		std::map<unsigned char, std::string>	text;
-
-		void	display();
-		void	clear();
-
-	public:
-		DisplayConsole();
-
-		void	define(unsigned char i, std::string text);
-		void	deleteText(unsigned char i);
-};
-
-#endif
+	command->rpl(999);
+	command->getUser().setLastPing(std::time(0));
+}

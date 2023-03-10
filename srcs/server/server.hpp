@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:06:09 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/14 00:52:26 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/10 02:19:34 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 #include "config/displayConsole.hpp"
 #include "../logger/logger.hpp"
 #include "../user/user.hpp"
+#include "../channel/channel.hpp"
 #include <string>
 #include <fcntl.h>
-#include <csignal>
 #include <iostream>
 #include <cstring>
 #include <cstdio>
@@ -30,6 +30,7 @@
 #include <poll.h>
 #include <map>
 #include <vector>
+#include <ctime>
 
 class User;
 
@@ -39,13 +40,15 @@ class Server
 
 		GetParams				config;
 		Logger					logger;
-		displayConsole			display;
+		DisplayConsole			display;
 		int						sockfd;
 
+		std::vector<Channel *>	channels;
 		std::map<int, User *>	users;
 		std::vector<pollfd>		fds;
 
-		int 					incrementation;
+		std::string upTime;
+		time_t last_ping;
 	
 	private:
 
@@ -60,12 +63,19 @@ class Server
 
 		GetParams				&getConfig(void);
 		Logger					&getLogger(void);
-
+		User					*getUserByNickname(std::string nickname);
+		Channel					*getChannel(std::string name);
+		
 		void					init(void);
 		void					execute(void);
 
-		User *getUser(std::string name);
+		User *getUser(std::string &name);
 		std::vector<User *> getUsers();
+		std::vector<Channel *> getChannels();
+		DisplayConsole 		getDisplay();
+		
+		bool isChannel(std::string const &name);
+
 };
 
 #endif

@@ -1,35 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   displayConsole.hpp                                :+:      :+:    :+:   */
+/*   USER.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/02/13 22:55:08 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/13 23:00:44 by thamon           ###   ########.fr       */
+/*   Created: 2023/02/16 01:41:23 by thamon            #+#    #+#             */
+/*   Updated: 2023/03/10 01:07:29 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DISPLAYCONSOLE_HPP
-#define DISPLAYCONSOLE_HPP
+#include "../../commands.hpp"
 
-#include <iostream>
-#include <map>
-
-class DisplayConsole
+void USER(Commands *command)
 {
-	
-	private:
-		std::map<unsigned char, std::string>	text;
+	if (command->getParams().size() < 3)
+		return (command->rpl(461, "user"));
+	if (command->getUser().getStatus() != REGISTER)
+		return (command->rpl(462));
 
-		void	display();
-		void	clear();
-
-	public:
-		DisplayConsole();
-
-		void	define(unsigned char i, std::string text);
-		void	deleteText(unsigned char i);
-};
-
-#endif
+	command->getUser().setUsername(command->getParams()[0]);
+	command->getUser().setRealname(command->getContent());
+}

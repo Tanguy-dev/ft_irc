@@ -8,18 +8,43 @@ SRCS_HPP			=	server/server.hpp			\
 						utils/utils.hpp \
 						user/user.hpp \
 						logger/logger.hpp			\
-						server/config/displayConsole.hpp
+						server/config/displayConsole.hpp	\
+						commands/commands.hpp				\
+						channel/channel.hpp
 
 SRCS_CPP			=	main.cpp					\
+						channel/channel.cpp			\
 						server/server.cpp			\
 						server/config/getParams.cpp	\
 						utils/utils.cpp \
 						user/user.cpp \
 						logger/logger.cpp			\
-						server/config/displayConsole.cpp
+						server/config/displayConsole.cpp	\
+						commands/commands.cpp				\
+						commands/RPL.cpp				\
+						commands/commands_name/connection/PASS.cpp	\
+						commands/commands_name/connection/NICK.cpp	\
+						commands/commands_name/connection/USER.cpp	\
+						commands/commands_name/connection/QUIT.cpp	\
+						commands/commands_name/channel/JOIN.cpp	\
+						commands/commands_name/check/PING.cpp	\
+						commands/commands_name/check/PONG.cpp	\
+						commands/commands_name/user/PRIVMSG.cpp	\
+						commands/commands_name/moderation/BAN.cpp	\
+						commands/commands_name/moderation/BANLIST.cpp	\
+						commands/commands_name/moderation/CLEAR.cpp	\
+						commands/commands_name/moderation/DEOP.cpp	\
+						commands/commands_name/moderation/INVITE.cpp	\
+						commands/commands_name/moderation/KICK.cpp	\
+						commands/commands_name/moderation/KICKALL.cpp	\
+						commands/commands_name/moderation/KICKBAN.cpp	\
+						commands/commands_name/moderation/OP.cpp	\
+						commands/commands_name/moderation/TOPIC.cpp	\
+						commands/commands_name/moderation/UNBAN.cpp	\
+						commands/commands_name/moderation/WHOIS.cpp
 
 CPP					=	clang++
-FLAGS				=	-Wall -Wextra -Werror -std=c++98
+FLAGS				=	-Wall -Wextra -Werror -std=c++98 -g
 
 ARGUMENTS			=	6667 password
 

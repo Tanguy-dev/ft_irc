@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 00:34:54 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/14 01:46:37 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/01 04:37:09 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "../server/config/getParams.hpp"
 #include "../server/server.hpp"
+#include "../commands/commands.hpp"
 #include <string>
 #include <iostream>
 #include <cstring>
@@ -26,8 +27,12 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <netdb.h>
+#include <algorithm>
+#include <ostream>
 
 class Server;
+class Channel;
+class Commands;
 
 enum userStatus
 {
@@ -42,36 +47,57 @@ class User
 	friend class Server;
 	
 	private:
+		std::map<std::string, void (*)(Commands *)>	command_function;
+		std::vector<Commands *>	commands;
 
-		userStatus			status;
+		int					sockfd;
 
+
+		time_t				last_ping;
 		std::string			buffer;
+		userStatus			status;
 	
 		std::string			nickname;
 		std::string			username;
-		int					sockfd;
+		std::string			realname;
 		
 		std::string			host_addr;
 		std::string			hostname;
-		
+
+		std::vector<std::string>	waitMessage;
+
+		void				sort(void);
+		void 				write(std::string message);
 	public:
 	
-		User(int sockfd, struct sockaddr_in const addr);
-		~User(void);
+		User(int sockfd, struct sockaddr_in addr);
+		~User();
 
 
-		void		send(std::string const str) const;
-		void		readUserInfo(void);
+		// void		send(std::string const str) const;
+		void		readUserInfo(Server *server);
 
 		// getters
-		std::string	getUsername(void) const;
-		std::string	getNickname(void) const;
-		std::string	getHostname(void) const;
-		userStatus	getStatus(void) const;
-		int			getFd(void) const;
+		std::string	getUsername(void);
+		std::string	getNickname(void);
+		std::string getRealname(void);
+		std::string	getHostname(void);
+		std::string getPrefix(void);
+		std::string getHost(void);
+		time_t		getLastPing(void);
+		userStatus	getStatus(void);
+		int			getFd(void);
 
 		// setters
-		void		setStatus(userStatus status) { this->status = status; }
+		void		setStatus(userStatus status);
+		void		setNickname(std::string nickname);
+		void		setUsername(std::string username);
+		void		setRealname(std::string realname);
+		void		setLastPing(time_t last_ping);
+
+		// Gestion des message vers le client
+		void 		sendMessage(User &toUser, std::string message);
+		void 		push();
 };
 
 #endif

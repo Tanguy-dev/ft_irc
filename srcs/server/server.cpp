@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:39:33 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/14 01:45:16 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/10 02:26:09 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 #define WHITE "\033[1;37m"
 #define YELLOW "\033[0;33m"
 
-Server::Server(void)
+Server::Server(void) : upTime(currentTime()), last_ping(std::time(0))
 {
-	return;
+	display.define(0, "welcome on ft_irc !");
 }
 
 Server::~Server(void)
@@ -30,6 +30,8 @@ Server::~Server(void)
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
 		delUser(*(*it));
 }
+
+DisplayConsole Server::getDisplay() { return (display); }
 
 GetParams &Server::getConfig(void)
 {
@@ -50,14 +52,13 @@ std::vector<User *> Server::getUsers()
 	return (users);
 }
 
-void	Server::init()
+void Server::init()
 {
 	int re_use = 1;
-	incrementation = 0;
+
 	// Créer la socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
-
 		error("unable to open the socket", true);
 
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &re_use, sizeof(re_use)) < 0)
@@ -86,36 +87,75 @@ void	Server::init()
 	fds.back().fd = sockfd;
 	fds.back().events = POLLIN;
 
-	char buffer[200];
+	char buffer[128];
 	sprintf(buffer, "The server is running on port : %s\nThe password of the server is : %s", this->config.get("port").c_str(), this->config.get("password").c_str());
-	display.define(0, buffer);
+	display.define(1, buffer);
 }
 
-void	Server::execute()
+void Server::acceptUser()
+{
+	size_t maxUsers = 10;
+	char buffer[42];
+
+	if (users.size() == maxUsers)
+		if (shutdown(sockfd, SHUT_RD) == -1)
+			return;
+
+	struct sockaddr_in address;
+	socklen_t client_len = sizeof(address);
+	int sockfd = accept(this->sockfd, (struct sockaddr *)&address, &client_len);
+	if (sockfd == -1)
+		return;
+
+	users[sockfd] = new User(sockfd, address);
+	if (!config.get("password").length())
+		users[sockfd]->setStatus(REGISTER);
+
+	fds.push_back(pollfd());
+	fds.back().fd = sockfd;
+	fds.back().events = POLLIN;
+
+	// Affiche le nombre de users connectes
+	sprintf(buffer, "\nNumber of users connected : %lu/%lu\n", users.size(), maxUsers);
+	display.define(2, buffer);
+}
+
+void Server::execute()
 {
 	std::vector<User *> users = getUsers();
 
-	if (poll(&fds[0], fds.size(), 10000) == -1)
-		return ;
+	if (poll(&fds[0], fds.size(), (60 * 1000) / 10) == -1)
+		return;
 
-// Je vérifie si un nouvel utilisateur cherche à se connecter. Si oui, je le accepte, sinon je vais lire les informations des utilisateurs.
+	display.define(20, "null");
+	// Je vérifie si un nouvel utilisateur cherche à se connecter. Si oui, je le accepte, sinon je vais lire les informations des utilisateurs.
 	if (fds[0].revents == POLLIN)
 		acceptUser();
 	else
-		for (std::vector<pollfd>::iterator it = fds.begin();it != fds.end(); ++it)
+	{
+		display.define(20, "null");
+		for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); ++it)
+		{
 			if ((*it).revents == POLLIN)
-				this->users[(*it).fd]->readUserInfo();
+			{
+				this->users[(*it).fd]->readUserInfo(this);
+				display.define(20, "SALUT");
+			}
+		}
+	}
 
-// Je fais une boucle pour vérifier si aucun utilisateur ne s'est déconnecté.
+	// Je fais une boucle pour vérifier si aucun utilisateur ne s'est déconnecté.
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
 		if ((*it)->getStatus() == DELETE)
 			delUser(*(*it));
-// Je récupère les utilisateurs et ensuite j'affiche tous les utilisateurs dans la console.
 	users = getUsers();
+	// J'affiche tous les messages qui étaient en attente d'être envoyés.
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
+		(*it)->push();
 	displayUsers(users);
 }
 
-void	Server::delUser(User &user)
+void Server::delUser(User &user)
 {
 	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); ++it)
 	{
@@ -137,40 +177,8 @@ void	Server::delUser(User &user)
 	display.define(2, buffer);
 }
 
-void	Server::acceptUser()
+void Server::displayUsers(std::vector<User *> users)
 {
-	size_t maxUsers = 10;
-	char buffer[42];
-
-	if (users.size() == maxUsers)
-	{
-		if (shutdown(sockfd, SHUT_RD) == -1)
-			return;
-	}
-
-	struct sockaddr_in address;
-	socklen_t client_len = sizeof(address);
-	int sockfd = accept(this->sockfd, (struct sockaddr *) &address, & client_len);
-	if (sockfd == -1)
-		return ;
-
-	users[sockfd] = new User(sockfd, address);
-	if (!config.get("password").length())
-		users[sockfd]->setStatus(REGISTER);
-
-	fds.push_back(pollfd());
-	fds.back().fd = sockfd;
-	fds.back().events = POLLIN;
-
-	// Affiche le nombre de users connectes
-	sprintf(buffer, "\nNumber of users connected : %lu/%lu\n", users.size(), maxUsers);
-	display.define(2, buffer);
-	
-	// std::cout << "new User " << inet_ntoa(address.sin_addr) << ":" << ntohs(address.sin_port)
-	// 		<< " (" << sockfd << ")" << std::endl;
-}
-
-void Server::displayUsers(std::vector<User *> users) {
 	char buffer[128];
 	// Le sprintf sert a stocker les donner dans un variable plutot que de les ecrire directement dans le terminal
 	sprintf(buffer, "%-4s %-11s %-8s", "FD", "Hostname", "Nickname");
@@ -182,4 +190,68 @@ void Server::displayUsers(std::vector<User *> users) {
 		sprintf(buffer, "\033[0;33m%-4i %-11s %-8s", (*it)->getFd(), this->users[(*it)->getFd()]->getHostname().c_str(), this->users[(*it)->getFd()]->getNickname().c_str());
 		display.define((*it)->getFd(), buffer);
 	}
+}
+
+User *Server::getUserByNickname(std::string nickname)
+{
+	if (nickname.empty())
+		throw std::exception();
+
+	std::vector<User *> users = getUsers();
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
+	{
+		if (!(*it)->getNickname().empty() && (*it)->getNickname() == nickname)
+		{
+			return (*it);
+		}
+	}
+
+	return (NULL);
+}
+
+User *Server::getUser(std::string &name)
+{
+	for (std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it)
+		if ((*it).second->getNickname() == name)
+			return ((*it).second);
+	return (NULL);
+}
+
+bool Server::isChannel(std::string const &name)
+{
+	bool found = false;
+
+	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+	{
+		if ((*it)->getName() == name)
+		{
+			found = true;
+			break;
+		}
+	}
+	return found;
+}
+Channel *Server::getChannel(std::string name)
+{
+	bool exist = isChannel(name);
+	Channel *channel = NULL;
+
+	if (exist) {
+		for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
+			if ((*it)->getName() == name) {
+				channel = *it;
+				break;
+			}
+		}
+	} else {
+		channel = new Channel(name);
+		channels.push_back(channel);
+	}
+
+	return (channel);
+}
+
+std::vector<Channel *> Server::getChannels()
+{
+	return (channels);
 }
