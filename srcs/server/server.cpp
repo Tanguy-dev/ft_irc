@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:39:33 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/10 02:26:09 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/14 01:41:09 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,31 @@ void Server::execute()
 
 void Server::delUser(User &user)
 {
+	std::vector<User *> broadcast_users = std::vector<User *>();
+	broadcast_users.push_back(&user);
+
+	std::vector<Channel> remove;
+	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+		if ((*it)->isMember(&user))
+		{
+			(*it)->quit(&user);
+
+			std::vector<User *> users = (*it)->getMembers();
+			if (!users.size())
+				remove.push_back(*(*it));
+			else
+				for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
+					if (std::find(broadcast_users.begin(), broadcast_users.end(), *it) == broadcast_users.end())
+						broadcast_users.push_back(*it);
+		}
+
+	for (std::vector<Channel>::iterator it = remove.begin(); it != remove.end(); ++it)
+		delChannel(*it);
+
+	for (std::vector<User *>::iterator it = broadcast_users.begin(); it != broadcast_users.end(); ++it)
+		user.sendMessage(*(*it), "QUIT : Client Quit");
+	user.push();
+
 	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); ++it)
 	{
 		if ((*it).fd == user.getFd())
@@ -199,12 +224,21 @@ User *Server::getUserByNickname(std::string nickname)
 
 	std::vector<User *> users = getUsers();
 	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
-	{
 		if (!(*it)->getNickname().empty() && (*it)->getNickname() == nickname)
-		{
 			return (*it);
-		}
-	}
+
+	return (NULL);
+}
+
+User *Server::getUserByPrefix(std::string prefix)
+{
+	if (prefix.empty())
+		throw std::exception();
+
+	std::vector<User *> users = getUsers();
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
+		if (!(*it)->getPrefix().empty() && (*it)->getPrefix() == prefix)
+			return (*it);
 
 	return (NULL);
 }
@@ -229,24 +263,50 @@ bool Server::isChannel(std::string const &name)
 			break;
 		}
 	}
-	return found;
+	return (found);
 }
+
+void Server::delChannel(Channel channel)
+{
+	char buffer[42];
+
+	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+	{
+		if (channel.getName() == (*it)->getName())
+		{
+			channels.erase(it);
+			break;
+		}
+	}
+	sprintf(buffer, "\nNumber of channel : %lu\n", channels.size());
+	display.define(42, buffer);
+}
+
 Channel *Server::getChannel(std::string name)
 {
+	char buffer[42];
 	bool exist = isChannel(name);
 	Channel *channel = NULL;
 
-	if (exist) {
-		for (std::vector<Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
-			if ((*it)->getName() == name) {
+	if (exist)
+	{
+		for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
+		{
+			if ((*it)->getName() == name)
+			{
 				channel = *it;
 				break;
 			}
 		}
-	} else {
+	}
+	else
+	{
 		channel = new Channel(name);
 		channels.push_back(channel);
 	}
+
+	sprintf(buffer, "\nNumber of channel : %lu\n", channels.size());
+	display.define(42, buffer);
 
 	return (channel);
 }

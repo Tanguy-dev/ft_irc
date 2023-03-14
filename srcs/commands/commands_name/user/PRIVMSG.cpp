@@ -6,76 +6,50 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/25 14:21:05 by gadeneux          #+#    #+#             */
-/*   Updated: 2023/03/10 03:01:53 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/13 23:25:13 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../commands.hpp"
 #include <string>
 
-#define TARGET_USER 1
-#define TARGET_CHAN 2
-#define TARGET_USCH 3
-
 void PRIVMSG(Commands *command)
 {
+	// If no parameter is given for the command, reply with error code 411 (no recipient given)
 	if (!command->getParams().size())
 		return command->rpl(411);
+	// If no message is given, reply with error code 412 (no text to send)
 	if (!command->getContent().length())
 		return command->rpl(412);
 
+	// Determine the target of the message (a user or a channel)
 	std::string target = command->getParams()[0];
 	std::vector<User *> targetUser;
-
-
-	// // Trouver l'indice du premier ':' dans les arguments de la commande
-	// size_t colon_index = command_string.find_first_of(':');
-
-	// // S'il n'y a pas de ':', signaler une erreur de syntaxe
-	// if (colon_index == std::string::npos)
-	// 	return (command->rpl(501));
-
-	// // Déterminer combien d'arguments il y a avant le ':'
-	// size_t num_args_before_colon = std::count(command_string.begin(), command_string.begin() + colon_index, ' ') + 1;
-
-	// Déterminer le type de cible (User, channel ou User + channel)
-	// size_t tartype = 0;
-
-	// if (num_args_before_colon - 1 == 2)
-	// 	tartype = TARGET_USCH;
-	// else if (num_args_before_colon == 1)
-	// 	tartype = (params[0].front() == '#' ? TARGET_CHAN : TARGET_USER);
-
+	// If the target begins with a '#' character, it's a channel
 	if (*target.begin() == '#') {
+		// Check if the channel exists
 		if (command->getServer().isChannel(target)) {
-			command->getUser().sendMessage(command->getUser(), "bien");
+			// Get the channel object
 			Channel *chann = command->getServer().getChannel(target);
-
-			// Ici eventuellement on peut mettre s'il possède une exception
-			// de ban (genre un operator etc.) mais c'est pas demandé dans le sujet
-
-			// bool user_is_covered_by_ban_exception = false;
-
-			// if (chann->isUserBanned(command->getUser().getNickname()) && !user_is_covered_by_ban_exception)
-			// {
-			// 	// L'utilisateur est banni du channel
-			// 	return (command->rpl(404));
-			// }
-
-			// Envoi du message au channel 
+			// Get the list of members in the channel
 			targetUser = chann->getMembers();
+			// Remove the sender of the message from the list of recipients
 			std::vector<User *>::iterator it = std::find(targetUser.begin(), targetUser.end(), &command->getUser());
 			if (it != targetUser.end())
 				targetUser.erase(it);
 		} else 
+			// If the channel does not exist, reply with error code 404 (cannot send to channel)
 			return (command->rpl(404, target));
 	} else {
+		// If the target is not a channel, it's a user
 		if (command->getServer().getUserByNickname(target))
 			targetUser.push_back(command->getServer().getUserByNickname(target));
 		else
+			// If the user does not exist, reply with error code 401 (no such nick/channel)
 			return command->rpl(401, target);
 	}
 
+	// Send the message to all the recipients
 	for (std::vector<User *>::iterator it = targetUser.begin(); it != targetUser.end(); ++it)
 		command->getUser().sendMessage(*(*it), "PRIVMSG " + target + " :" + command->getContent());
 }

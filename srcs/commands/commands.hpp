@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 22:33:35 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/10 00:57:32 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/07 03:19:32 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,9 @@
 #include "../server/server.hpp"
 #include "../utils/utils.hpp"
 #include "../user/user.hpp"
-#include "../channel/channel.hpp"
 
 class User;
 class Server;
-class Channel;
 
 class Commands
 {

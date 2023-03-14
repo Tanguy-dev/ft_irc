@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:06:09 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/10 02:19:34 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/13 23:09:02 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class Server
 		GetParams				&getConfig(void);
 		Logger					&getLogger(void);
 		User					*getUserByNickname(std::string nickname);
+		User					*getUserByPrefix(std::string nickname);
 		Channel					*getChannel(std::string name);
 		
 		void					init(void);
@@ -73,9 +74,9 @@ class Server
 		std::vector<User *> getUsers();
 		std::vector<Channel *> getChannels();
 		DisplayConsole 		getDisplay();
-		
-		bool isChannel(std::string const &name);
 
+		bool isChannel(std::string const &name);
+		void delChannel(Channel channel);
 };
 
 #endif

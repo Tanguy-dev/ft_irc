@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   user.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gadeneux <gadeneux@student.42.fr>          +#+  +:+       +#+        */
+/*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 00:34:52 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/09 14:47:55 by gadeneux         ###   ########.fr       */
+/*   Updated: 2023/03/13 23:18:51 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,14 @@ void PASS(Commands *command);
 void NICK(Commands *command);
 void USER(Commands *command);
 void QUIT(Commands *command);
-void JOIN(Commands *command);
 void PING(Commands *command);
 void PONG(Commands *command);
 
+void JOIN(Commands *command);
+void PART(Commands *command);
+
 void KICK(Commands *command);
-void BAN(Commands *command);
+void MODE(Commands *command);
 void UNBAN(Commands *command);
 void KICKBAN(Commands *command);
 void OP(Commands *command);
@@ -118,22 +120,23 @@ User::User(int sockfd, struct sockaddr_in addr) : command_function(), sockfd(soc
 	command_function["QUIT"] = QUIT;
 
 	command_function["JOIN"] = JOIN;
+	command_function["PART"] = PART;
 	command_function["PING"] = PING;
 	command_function["PONG"] = PONG;
 	command_function["PRIVMSG"] = PRIVMSG;
 	
-	command_function["KICK"] = KICK;
-	command_function["BAN"] = BAN;
-	command_function["UNBAN"] = UNBAN;
-	command_function["KICKBAN"] = KICKBAN;
-	command_function["OP"] = OP;
-	command_function["DEOP"] = DEOP;
-	command_function["TOPIC"] = TOPIC;
-	command_function["INVITE"] = INVITE;
-	command_function["KICKALL"] = KICKALL;
-	command_function["BANLIST"] = BANLIST;
-	command_function["CLEAR"] = CLEAR;
-	command_function["WHOIS"] = WHOIS;
+	// command_function["KICK"] = KICK;
+	command_function["BAN"] = MODE;
+	// command_function["UNBAN"] = UNBAN;
+	// command_function["KICKBAN"] = KICKBAN;
+	// command_function["OP"] = OP;
+	// command_function["DEOP"] = DEOP;
+	// command_function["TOPIC"] = TOPIC;
+	// command_function["INVITE"] = INVITE;
+	// command_function["KICKALL"] = KICKALL;
+	// command_function["BANLIST"] = BANLIST;
+	// command_function["CLEAR"] = CLEAR;
+	// command_function["WHOIS"] = WHOIS;
 }
 
 User::~User()

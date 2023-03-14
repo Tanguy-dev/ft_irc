@@ -6,25 +6,26 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/23 02:30:49 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/10 03:06:53 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/14 00:50:56 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../commands.hpp"
 
-void leaveAllChannels(Commands *command) {
+void leaveAllChannels(Commands *command)
+{
 	std::vector<Channel *> channels = command->getServer().getChannels();
 	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
 	{
 		(*it)->sendMessage(&command->getUser(), "PART " + (*it)->getName() + (command->getParams().size() > 1 ? " :" + command->getParams()[1] : ""));
-		// (*it).(command->getUser());
+		(*it)->quit(&command->getUser());
 		if ((*it)->getMembers().size() == 0)
-			;
-			// del channel
+			command->getServer().delChannel(*(*it));
 	}
 }
 
-std::string getUsersInfo(Channel channel) {
+std::string getUsersInfo(Channel channel)
+{
 	std::vector<User *> users = channel.getMembers();
 	std::string usersInfo = "";
 
@@ -32,6 +33,8 @@ std::string getUsersInfo(Channel channel) {
 	{
 		if (usersInfo.length())
 			usersInfo += " ";
+		if (channel.getUserMode(*(*it)).find('O') != std::string::npos || channel.getUserMode(*(*it)).find('o') != std::string::npos)
+			usersInfo += "@";
 		usersInfo += (*it)->getNickname();
 	}
 	return (usersInfo);
@@ -39,31 +42,68 @@ std::string getUsersInfo(Channel channel) {
 
 void JOIN(Commands *command)
 {
-    if (command->getParams().size() == 0)
-        return (command->rpl(461, "join"));
-    if (command->getParams()[0] == "0")
-        return (leaveAllChannels(command));
-    std::vector<std::string> channelsNames = split(command->getParams()[0], ",");
-    for (std::vector<std::string>::iterator it = channelsNames.begin(); it != channelsNames.end(); ++it)
-    {
-        if (it->c_str()[0] != '#')
-        {
-            command->rpl(476, *it);
-            continue;
-        }
-        Channel *channel = command->getServer().getChannel(*it);
-        if (channel->getMembers().size() == 0)
-        {
-            channel->join(&command->getUser());
-        } else {
-			channel->join(&command->getUser());
+	if (command->getParams().size() == 0)
+		return (command->rpl(461, "join"));
+	if (command->getParams()[0] == "0")
+		return (leaveAllChannels(command));
+
+	std::vector<std::string> channelsNames = split(command->getParams()[0], ",");
+	std::vector<std::string> keys = command->getParams().size() > 1 ? split(command->getParams()[1], ",") : std::vector<std::string>();
+	std::vector<std::string>::iterator it_keys = keys.begin();
+
+	for (std::vector<std::string>::iterator it = channelsNames.begin(); it != channelsNames.end(); ++it)
+	{
+		if (it->c_str()[0] != '#')
+		{
+			command->rpl(476, *it);
+			continue;
 		}
-        std::string channel_mode;
-        channel_mode = "=";
-        if (channel->getTopic().length())
-            command->rpl(332, *it, channel->getTopic());
-        command->rpl(353, channel_mode, *it, getUsersInfo(*channel));
-        command->rpl(366, *it);
-        channel->sendMessage(&command->getUser(), "JOIN :" + channel->getName());
-    }
+
+		Channel *channel = command->getServer().getChannel(*it);
+
+		if (channel->getMembers().size() == 0)
+		{
+			channel->join(&command->getUser());
+			channel->setUserMode(command->getUser(), "O");
+		}
+		else
+		{
+			std::string key = it_keys != keys.end() ? *it_keys++ : "";
+
+			if (channel->getMode().find('k') != std::string::npos && channel->getKey() != key)
+			{
+				command->rpl(475, *it);
+				continue;
+			}
+			if (channel->getMode().find('l') != std::string::npos && channel->getMembers().size() >= (size_t)atoi(channel->getMaxUsers().c_str()))
+			{
+				command->rpl(471, *it);
+				continue;
+			}
+			if (channel->getMode().find('i') != std::string::npos && !channel->isInvited(&command->getUser()))
+			{
+				command->rpl(473, *it);
+				continue;
+			}
+
+			channel->join(&command->getUser());
+			channel->removeInvited(&command->getUser());
+		}
+
+		std::string channelMode;
+
+		if (channel->getMode().find('p') != std::string::npos)
+			channelMode = "*";
+		else if (channel->getMode().find('s') != std::string::npos)
+			channelMode = "@";
+		else
+			channelMode = "=";
+
+		if (channel->getTopic().length())
+			command->rpl(332, *it, channel->getTopic());
+
+		command->rpl(353, channelMode, *it, getUsersInfo(*channel));
+		command->rpl(366, *it);
+		channel->sendMessage(&command->getUser(), "JOIN :" + channel->getName());
+	}
 }
