@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:06:09 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/13 23:09:02 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/27 17:16:17 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 #include "config/getParams.hpp"
 #include "config/displayConsole.hpp"
-#include "../logger/logger.hpp"
 #include "../user/user.hpp"
 #include "../channel/channel.hpp"
 #include <string>
@@ -39,7 +38,6 @@ class Server
 	private:
 
 		GetParams				config;
-		Logger					logger;
 		DisplayConsole			display;
 		int						sockfd;
 
@@ -62,10 +60,10 @@ class Server
 		~Server(void);
 
 		GetParams				&getConfig(void);
-		Logger					&getLogger(void);
 		User					*getUserByNickname(std::string nickname);
 		User					*getUserByPrefix(std::string nickname);
 		Channel					*getChannel(std::string name);
+		std::string				getUpTime();
 		
 		void					init(void);
 		void					execute(void);

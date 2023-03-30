@@ -7,7 +7,6 @@ SRCS_HPP			=	server/server.hpp			\
 						server/config/getParams.hpp	\
 						utils/utils.hpp \
 						user/user.hpp \
-						logger/logger.hpp			\
 						server/config/displayConsole.hpp	\
 						commands/commands.hpp				\
 						channel/channel.hpp
@@ -18,7 +17,6 @@ SRCS_CPP			=	main.cpp					\
 						server/config/getParams.cpp	\
 						utils/utils.cpp \
 						user/user.cpp \
-						logger/logger.cpp			\
 						server/config/displayConsole.cpp	\
 						commands/commands.cpp				\
 						commands/RPL.cpp				\
@@ -28,16 +26,23 @@ SRCS_CPP			=	main.cpp					\
 						commands/commands_name/connection/QUIT.cpp	\
 						commands/commands_name/channel/JOIN.cpp	\
 						commands/commands_name/channel/PART.cpp	\
+						commands/commands_name/channel/INVITE.cpp	\
+						commands/commands_name/channel/TOPIC.cpp	\
+						commands/commands_name/channel/NAMES.cpp	\
 						commands/commands_name/check/PING.cpp	\
 						commands/commands_name/check/PONG.cpp	\
 						commands/commands_name/user/PRIVMSG.cpp	\
+						commands/commands_name/user/NOTICE.cpp	\
+						commands/commands_name/user/WHO.cpp	\
 						commands/commands_name/moderation/MODE.cpp	\
+					    commands/commands_name/moderation/KICK.cpp	\
+					    commands/commands_name/moderation/OPER.cpp	\
+					    commands/commands_name/moderation/KILL.cpp	\
 						# commands/commands_name/moderation/BAN.cpp	\
 						# commands/commands_name/moderation/BANLIST.cpp	\
 						# commands/commands_name/moderation/CLEAR.cpp	\
 						# commands/commands_name/moderation/DEOP.cpp	\
 						# commands/commands_name/moderation/INVITE.cpp	\
-						# commands/commands_name/moderation/KICK.cpp	\
 						# commands/commands_name/moderation/KICKALL.cpp	\
 						# commands/commands_name/moderation/KICKBAN.cpp	\
 						# commands/commands_name/moderation/OP.cpp	\

@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/15 22:33:33 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/07 03:17:58 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/30 18:02:12 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ Commands::Commands(User *user, Server *server, std::string message) : user(user)
 		prefix[i] = std::toupper(prefix[i]);
 }
 
-void	Commands::rpl(User &user, unsigned short id, std::string arg1, std::string arg2, std::string arg3, std::string arg4)
+void	Commands::rpl(User &user, unsigned short id, std::string arg1, std::string arg2, std::string arg3, std::string arg4, std::string arg5, std::string arg6, std::string arg7)
 {
 	// Conversion de l'ID en une chaîne de caractères et remplissage de gauche avec des zéros pour obtenir 3 caractères
 	std::stringstream ssid;
@@ -41,16 +41,16 @@ void	Commands::rpl(User &user, unsigned short id, std::string arg1, std::string 
 		sid = "0" + sid;
 
 	// Construction du message de réponse avec le RPL approprié et les arguments fournis
-	std::string message = getRPL(id, arg1, arg2, arg3, arg4);
+	std::string message = getRPL(id, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
 	// Envoi du message de réponse à l'utilisateur
 	user.sendMessage(user, sid + " " + message);
 }
 
 
-void	Commands::rpl(unsigned short id, std::string arg1, std::string arg2, std::string arg3, std::string arg4)
+void	Commands::rpl(unsigned short id, std::string arg1, std::string arg2, std::string arg3, std::string arg4, std::string arg5, std::string arg6, std::string arg7)
 {
-	rpl(*user, id, arg1, arg2, arg3, arg4);
+	rpl(*user, id, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 
 // Getter

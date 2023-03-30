@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/13 22:55:10 by thamon            #+#    #+#             */
-/*   Updated: 2023/02/15 22:39:00 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/30 18:28:22 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	DisplayConsole::clear()
 void	DisplayConsole::display()
 {
 	// Clear le terminal
-	clear();
+	// clear();
 	// une boucle pour write tous les element de la map de text. "\033[0m" reload les couleur et effet (gras, etc...)
 	for (std::map<unsigned char, std::string>::iterator it = text.begin(); it != text.end(); ++it)
 		std::cout << it->second << "\033[0m" << std::endl;

@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/23 02:30:49 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/14 00:50:56 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/27 20:45:38 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ std::string getUsersInfo(Channel channel)
 	{
 		if (usersInfo.length())
 			usersInfo += " ";
-		if (channel.getUserMode(*(*it)).find('O') != std::string::npos || channel.getUserMode(*(*it)).find('o') != std::string::npos)
+		if (channel.getUserMode(*(*it)).find('o') != std::string::npos)
 			usersInfo += "@";
 		usersInfo += (*it)->getNickname();
 	}
@@ -43,7 +43,7 @@ std::string getUsersInfo(Channel channel)
 void JOIN(Commands *command)
 {
 	if (command->getParams().size() == 0)
-		return (command->rpl(461, "join"));
+		return (command->rpl(461, "JOIN"));
 	if (command->getParams()[0] == "0")
 		return (leaveAllChannels(command));
 
@@ -64,7 +64,7 @@ void JOIN(Commands *command)
 		if (channel->getMembers().size() == 0)
 		{
 			channel->join(&command->getUser());
-			channel->setUserMode(command->getUser(), "O");
+			channel->setUserMode(command->getUser(), "o");
 		}
 		else
 		{
@@ -75,14 +75,19 @@ void JOIN(Commands *command)
 				command->rpl(475, *it);
 				continue;
 			}
-			if (channel->getMode().find('l') != std::string::npos && channel->getMembers().size() >= (size_t)atoi(channel->getMaxUsers().c_str()))
+			if (channel->getMode().find('l') != std::string::npos && channel->getMembers().size() >= (size_t)channel->getMaxUsers())
 			{
 				command->rpl(471, *it);
 				continue;
 			}
-			if (channel->getMode().find('i') != std::string::npos && !channel->isInvited(&command->getUser()))
+			if (channel->getMode().find('i') != std::string::npos && !channel->isInvited(&command->getUser()) && command->getUser().getMode().find('O') == std::string::npos)
 			{
 				command->rpl(473, *it);
+				continue;
+			}
+			if (channel->isUserBanned(&command->getUser()))
+			{
+				command->rpl(474, *it);
 				continue;
 			}
 
@@ -105,5 +110,6 @@ void JOIN(Commands *command)
 		command->rpl(353, channelMode, *it, getUsersInfo(*channel));
 		command->rpl(366, *it);
 		channel->sendMessage(&command->getUser(), "JOIN :" + channel->getName());
+		command->getUser().setChannel(channel->getName());
 	}
 }

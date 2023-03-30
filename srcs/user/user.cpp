@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 00:34:52 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/13 23:18:51 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/30 19:26:37 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,29 +24,27 @@ void PONG(Commands *command);
 
 void JOIN(Commands *command);
 void PART(Commands *command);
-
-void KICK(Commands *command);
-void MODE(Commands *command);
-void UNBAN(Commands *command);
-void KICKBAN(Commands *command);
-void OP(Commands *command);
-void DEOP(Commands *command);
-void TOPIC(Commands *command);
 void INVITE(Commands *command);
-void KICKALL(Commands *command);
-void BANLIST(Commands *command);
-void CLEAR(Commands *command);
-void WHOIS(Commands *command);
+void TOPIC(Commands *command);
+void NAMES(Commands *command);
 
 void PRIVMSG(Commands *command);
+void NOTICE(Commands *command);
+void WHO(Commands *command);
+
+void MODE(Commands *command);
+void KICK(Commands *command);
+void OPER(Commands *command);
+void KILL(Commands *command);
+
 
 
 void messageConnection(Commands *command)
 {
 	command->rpl(1, command->getUser().getPrefix());
 	command->rpl(2, command->getUser().getHostname(), command->getServer().getConfig().get("version"));
-	command->rpl(3, command->getUser().getPrefix());
-	command->rpl(4, command->getServer().getConfig().get("name"), command->getServer().getConfig().get("version"));
+	command->rpl(3, command->getServer().getUpTime());
+	command->rpl(4, command->getServer().getConfig().get("name"), command->getServer().getConfig().get("version"), command->getServer().getConfig().get("userMode"), command->getServer().getConfig().get("channelMode"));
 }
 
 // Cette fonction sert a verifier si la commande est autoriser a s'executer
@@ -74,11 +72,11 @@ void User::sort(void)
 		if (command_function.count((*it)->getPrefix()))
 			command_function[(*it)->getPrefix()]((*it));
 		// Ajoute la commande au vecteur del
-		del.push_back((*it));
+		del.push_back(*it);
 	}
 
 	// Supprime tous les éléments de commands qui ont été stockés dans del.
-	for (std::vector<Commands *>::iterator it = del.begin(); it != del.end(); ++it)
+	for (std::vector<Commands *>::iterator it = del.begin(); it != del.end(); it++)
 	{
 		if (std::find(commands.begin(), commands.end(), *it) != commands.end())
 		{
@@ -86,6 +84,7 @@ void User::sort(void)
 			delete (*it);
 		}
 	}
+
 
 	if (last_status == REGISTER)
 		if (nickname.length() && realname.length())
@@ -99,7 +98,7 @@ void User::sort(void)
 	}
 }
 
-User::User(int sockfd, struct sockaddr_in addr) : command_function(), sockfd(sockfd), last_ping(std::time(0)), buffer(), status(PASSWORD), nickname(), username(), realname(), host_addr(), hostname()
+User::User(int sockfd, struct sockaddr_in addr) : command_function(), sockfd(sockfd), last_ping(std::time(0)), buffer(), status(PASSWORD), nickname(), username(), realname(), host_addr(), hostname(), mode("i")
 {
 	// Configure la socket en mode non-bloquant
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
@@ -121,22 +120,21 @@ User::User(int sockfd, struct sockaddr_in addr) : command_function(), sockfd(soc
 
 	command_function["JOIN"] = JOIN;
 	command_function["PART"] = PART;
+	command_function["INVITE"] = INVITE;
+	command_function["TOPIC"] = TOPIC;
+	command_function["NAMES"] = NAMES;
+	
 	command_function["PING"] = PING;
 	command_function["PONG"] = PONG;
-	command_function["PRIVMSG"] = PRIVMSG;
 	
-	// command_function["KICK"] = KICK;
-	command_function["BAN"] = MODE;
-	// command_function["UNBAN"] = UNBAN;
-	// command_function["KICKBAN"] = KICKBAN;
-	// command_function["OP"] = OP;
-	// command_function["DEOP"] = DEOP;
-	// command_function["TOPIC"] = TOPIC;
-	// command_function["INVITE"] = INVITE;
-	// command_function["KICKALL"] = KICKALL;
-	// command_function["BANLIST"] = BANLIST;
-	// command_function["CLEAR"] = CLEAR;
-	// command_function["WHOIS"] = WHOIS;
+	command_function["PRIVMSG"] = PRIVMSG;
+	command_function["NOTICE"] = NOTICE;
+	command_function["WHO"] = WHO;
+	
+	command_function["MODE"] = MODE;
+	command_function["KICK"] = KICK;
+	command_function["OPER"] = OPER;
+	command_function["KILL"] = KILL;
 }
 
 User::~User()
@@ -235,6 +233,7 @@ std::string User::getUsername(void) { return (this->username); }
 std::string User::getRealname(void) { return (this->realname); }
 std::string User::getNickname(void) { return (this->nickname); }
 std::string User::getHostname(void) { return (this->hostname); }
+std::string User::getChannel(void) { return (this->channel); }
 userStatus User::getStatus(void) { return (status); }
 time_t User::getLastPing(void) { return (last_ping); };
 int User::getFd(void) { return (sockfd); }
@@ -250,3 +249,34 @@ void User::setNickname(std::string nickname) { this->nickname = nickname; }
 void User::setUsername(std::string username) { this->username = username; }
 void User::setRealname(std::string realname) { this->realname = realname; }
 void User::setLastPing(time_t last_ping) { this->last_ping = last_ping; }
+void User::setChannel(std::string channel) { this->channel = channel; }
+
+void User::setMode(char mode, bool active)
+{
+    if (active) {
+        // Ajoute le mode si il n'est pas déjà présent
+        if (this->mode.find(mode) == std::string::npos) {
+            this->mode += mode;
+        }
+    } else {
+        // Supprime le mode s'il est présent
+        size_t index = this->mode.find(mode);
+        if (index != std::string::npos) {
+            this->mode.erase(index, 1);
+        }
+    }
+}
+
+std::string User::getMode()
+{
+	return (mode);
+}
+
+bool User::isModeActived(char mode)
+{
+	return (this->mode.find(mode) != std::string::npos);
+}
+
+bool User::isAdmin() {
+    return (isModeActived('O'));
+}

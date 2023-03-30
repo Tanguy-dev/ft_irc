@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:39:33 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/14 01:41:09 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/30 18:51:52 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,16 +31,13 @@ Server::~Server(void)
 		delUser(*(*it));
 }
 
+std::string Server::getUpTime() { return (upTime); }
+
 DisplayConsole Server::getDisplay() { return (display); }
 
 GetParams &Server::getConfig(void)
 {
 	return (this->config);
-}
-
-Logger &Server::getLogger(void)
-{
-	return (this->logger);
 }
 
 std::vector<User *> Server::getUsers()
@@ -87,6 +84,9 @@ void Server::init()
 	fds.back().fd = sockfd;
 	fds.back().events = POLLIN;
 
+	config.set("userMode", "iO");
+	config.set("channelMode", "lki");
+
 	char buffer[128];
 	sprintf(buffer, "The server is running on port : %s\nThe password of the server is : %s", this->config.get("port").c_str(), this->config.get("password").c_str());
 	display.define(1, buffer);
@@ -94,12 +94,12 @@ void Server::init()
 
 void Server::acceptUser()
 {
-	size_t maxUsers = 10;
+	// size_t maxUsers = 10;
 	char buffer[42];
 
-	if (users.size() == maxUsers)
-		if (shutdown(sockfd, SHUT_RD) == -1)
-			return;
+	// if (users.size() == maxUsers)
+	// 	if (shutdown(sockfd, SHUT_RD) == -1)
+	// 		return;
 
 	struct sockaddr_in address;
 	socklen_t client_len = sizeof(address);
@@ -116,7 +116,7 @@ void Server::acceptUser()
 	fds.back().events = POLLIN;
 
 	// Affiche le nombre de users connectes
-	sprintf(buffer, "\nNumber of users connected : %lu/%lu\n", users.size(), maxUsers);
+	sprintf(buffer, "\nNumber of users connected : %lu/\n", users.size());
 	display.define(2, buffer);
 }
 
@@ -236,10 +236,18 @@ User *Server::getUserByPrefix(std::string prefix)
 		throw std::exception();
 
 	std::vector<User *> users = getUsers();
-	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it)
-		if (!(*it)->getPrefix().empty() && (*it)->getPrefix() == prefix)
-			return (*it);
-
+	for (std::vector<User *>::iterator it = users.begin(); it != users.end(); ++it) {
+		if (!(*it)->getPrefix().empty()) {
+			std::string userPrefix = (*it)->getPrefix();
+			size_t pos = userPrefix.find('!');
+			if (pos != std::string::npos) {
+				userPrefix.insert(pos + 1, "*");
+				userPrefix.replace(0, pos, "*");
+			}
+			if (userPrefix == prefix)
+				return (*it);
+		}
+	}
 	return (NULL);
 }
 
@@ -254,7 +262,8 @@ User *Server::getUser(std::string &name)
 bool Server::isChannel(std::string const &name)
 {
 	bool found = false;
-
+	
+	std::cout << name << std::endl;
 	for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
 	{
 		if ((*it)->getName() == name)
@@ -275,6 +284,7 @@ void Server::delChannel(Channel channel)
 		if (channel.getName() == (*it)->getName())
 		{
 			channels.erase(it);
+			delete (*it);
 			break;
 		}
 	}

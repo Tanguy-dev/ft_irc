@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 00:34:54 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/01 04:37:09 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/24 00:44:12 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,9 @@ class User
 		
 		std::string			host_addr;
 		std::string			hostname;
+		std::string 		channel;
+
+		std::string 		mode;
 
 		std::vector<std::string>	waitMessage;
 
@@ -84,6 +87,8 @@ class User
 		std::string	getHostname(void);
 		std::string getPrefix(void);
 		std::string getHost(void);
+		std::string getChannel(void);
+
 		time_t		getLastPing(void);
 		userStatus	getStatus(void);
 		int			getFd(void);
@@ -94,10 +99,18 @@ class User
 		void		setUsername(std::string username);
 		void		setRealname(std::string realname);
 		void		setLastPing(time_t last_ping);
+		void		setChannel(std::string channel);
 
 		// Gestion des message vers le client
 		void 		sendMessage(User &toUser, std::string message);
 		void 		push();
+
+		// Mode utilisateur
+		void 			setMode(char mode, bool active);
+		bool 			isModeActived(char mode);
+		std::string 	getMode();
+
+		bool isAdmin();
 };
 
 #endif

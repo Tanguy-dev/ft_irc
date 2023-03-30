@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/25 14:21:05 by gadeneux          #+#    #+#             */
-/*   Updated: 2023/03/13 23:25:13 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/27 17:47:44 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,26 @@ void PRIVMSG(Commands *command)
 		if (command->getServer().isChannel(target)) {
 			// Get the channel object
 			Channel *chann = command->getServer().getChannel(target);
+			if (chann->isUserBanned(&command->getUser()))
+				return ;
 			// Get the list of members in the channel
 			targetUser = chann->getMembers();
 			// Remove the sender of the message from the list of recipients
-			std::vector<User *>::iterator it = std::find(targetUser.begin(), targetUser.end(), &command->getUser());
-			if (it != targetUser.end())
-				targetUser.erase(it);
+			std::vector<User *>::iterator sender = std::find(targetUser.begin(), targetUser.end(), &command->getUser());
+			if (sender != targetUser.end())
+				targetUser.erase(sender);
+			// for (std::vector<User *>::iterator it = targetUser.begin(); it != targetUser.end(); ++it)
+			// 	if (chann->isUserBanned((*it)))
+			// 		targetUser.erase(it);
+
+			std::vector<User*>::iterator it = targetUser.begin();
+			while (it != targetUser.end())
+			{
+				if (chann->isUserBanned(*it))
+					it = targetUser.erase(it);
+				else
+					++it;
+			}
 		} else 
 			// If the channel does not exist, reply with error code 404 (cannot send to channel)
 			return (command->rpl(404, target));

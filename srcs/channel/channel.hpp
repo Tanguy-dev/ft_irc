@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/25 21:42:12 by gadeneux          #+#    #+#             */
-/*   Updated: 2023/03/14 00:43:07 by thamon           ###   ########.fr       */
+/*   Updated: 2023/03/27 17:03:03 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,46 +26,61 @@ class Channel
 public:
 	Channel(std::string name);
 
-	void join(User *user);
+	// join & quit
+	// bool join(User *user, std::string key);
+	bool join(User *user);
 	void quit(User *user);
 
+	// ban
 	bool ban(User *user, int duration_secs);
 	bool unban(User *user);
-
-	void setTopic(std::string const &topic);
-
-	void sendMessage(User *sender, std::string message);
-
-	bool isMember(User *user) const;
 	bool isUserBanned(User *user);
 
-	bool isOperator(User *user) const;
-
+	// op
 	bool op(User *user);
 	bool deop(User *user);
+	bool isOperator(User *user) const;
 
+	// topic
+	void setTopic(std::string const &topic);
 	std::string getTopic() const;
+
+	// send message
+	void sendMessage(User *sender, std::string message);
+
+	// channel mode
+	void 			setMode(char mode, bool active);
+	bool 			isModeActived(char mode);
+	std::string 	getMode();
+
+	// user mode
+	void			setUserMode(User &user, std::string mode);
+	std::string		getUserMode(User &user);
+
+	// user limitation
+	void setMaxUsers(int maxUsers);
+	int getMaxUsers();
+
+	// key
+	void setKey(std::string key);
+	std::string getKey();
+	bool isKeyPresent();
+
+	// invite
+	void addInvited(User *user);
+	bool isInvited(User *user);
+	void removeInvited(User *user);
+	bool isMember(User *user) const;
+	bool isMemberName(std::string nick);
+	bool isInviteOnly();
+	bool isMemberLimited();
+	int getMemberCount();
+
 	std::string getName() const;
 	std::vector<User *> getMembers();
 	std::map<std::string, std::pair<std::time_t, int> > getBannedUsers() const;
 	std::vector<User *> getOperators() const;
 
-	// channel mode
-	void 			setMode(std::string mode);
-	std::string 	getMode();
-
-	void			setUserMode(User &user, std::string mode);
-	std::string		getUserMode(User &user);
-
-	void setMaxUsers(std::string maxUsers);
-	std::string getMaxUsers();
-
-	void setKey(std::string key);
-	std::string getKey();
-
-	void addInvited(User *user);
-	bool isInvited(User *user);
-	void removeInvited(User *user);
 private:
 
 	std::string name;
@@ -74,10 +89,10 @@ private:
 	std::vector<User *> operators;
 	std::map<std::string, std::pair<std::time_t, int> > banned_users;
 	
-	std::string mode;
+	std::string modes;
 	std::map<int, std::string> userMode;
 
-	std::string maxUsers;
+	int maxUsers;
 
 	std::string key;
 
