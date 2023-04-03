@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/16 01:00:23 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/07 04:26:42 by thamon           ###   ########.fr       */
+/*   Updated: 2023/04/03 05:28:43 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,11 @@ void NICK(Commands *command)
 
 
 	// Si la size du nickname est > 9 on envoi "ERR_ERRONEUSNICKNAME"
-	if (nickname.length() >= 9)
+	if (nickname.length() >= 29)
 		return (command->rpl(432, nickname));
 
 	// Si le premier characters de nickname est un chiffre on envoi "ERR_ERRONEUSNICKNAME"
-	if (isDigit(nickname[0]))
+	if (!isLetter(nickname[0]) && !isSpecial(nickname[0]))
 		return (command->rpl(432, nickname));
 
 	// Si nickname contien des invalid characters on envoi "ERR_ERRONEUSNICKNAME"

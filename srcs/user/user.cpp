@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/04 00:34:52 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/30 19:26:37 by thamon           ###   ########.fr       */
+/*   Updated: 2023/04/03 05:19:31 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,13 @@ void User::sort(void)
 	std::vector<Commands *> del = std::vector<Commands *>();
 	for (std::vector<Commands *>::iterator it = commands.begin(); it != commands.end(); ++it)
 	{
-		// if (last_status == CAPLS)
-		// {
-		// 	if ((*it)->getParams().size() >= 1 && (*it)->getPrefix() == "CAP" && (*it)->getParams()[0] == "LS")
-		// 		this->status = PASSWORD;
-		// 	continue;
-		// }
-		if (last_status == PASSWORD)
+		if (last_status == CAPLS)
+		{
+			if ((*it)->getParams().size() >= 1 && (*it)->getPrefix() == "CAP" && (*it)->getParams()[0] == "LS")
+				this->status = PASSWORD;
+			continue;
+		}
+		else if (last_status == PASSWORD)
 		{
 			if ((*it)->getPrefix() != "PASS")
 				continue;
@@ -104,7 +104,7 @@ void User::sort(void)
 }
 
 
-User::User(int sockfd, struct sockaddr_in addr) : command_function(), sockfd(sockfd), last_ping(std::time(0)), buffer(), status(PASSWORD), nickname(), username(), realname(), host_addr(), hostname(), mode("i")
+User::User(int sockfd, struct sockaddr_in addr) : command_function(), sockfd(sockfd), last_ping(std::time(0)), buffer(), status(CAPLS), nickname(), username(), realname(), host_addr(), hostname(), mode("i")
 {
 	// Configure la socket en mode non-bloquant
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
