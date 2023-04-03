@@ -36,6 +36,7 @@ class Commands;
 
 enum userStatus
 {
+	CAPLS,
 	PASSWORD,
 	REGISTER,
 	ONLINE,

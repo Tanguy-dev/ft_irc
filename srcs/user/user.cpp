@@ -57,6 +57,12 @@ void User::sort(void)
 	std::vector<Commands *> del = std::vector<Commands *>();
 	for (std::vector<Commands *>::iterator it = commands.begin(); it != commands.end(); ++it)
 	{
+		// if (last_status == CAPLS)
+		// {
+		// 	if ((*it)->getParams().size() >= 1 && (*it)->getPrefix() == "CAP" && (*it)->getParams()[0] == "LS")
+		// 		this->status = PASSWORD;
+		// 	continue;
+		// }
 		if (last_status == PASSWORD)
 		{
 			if ((*it)->getPrefix() != "PASS")
@@ -67,7 +73,7 @@ void User::sort(void)
 			if ((*it)->getPrefix() != "NICK" && (*it)->getPrefix() != "USER")
 				continue;
 		}
-
+		std::cout << (*it)->getPrefix() << std::endl;
 		// Si la commands a un préfixe valide, il appelle la fonction correspondante avec la commande comme argument.
 		if (command_function.count((*it)->getPrefix()))
 			command_function[(*it)->getPrefix()]((*it));
@@ -85,18 +91,18 @@ void User::sort(void)
 		}
 	}
 
-
 	if (last_status == REGISTER)
 		if (nickname.length() && realname.length())
-			status = ONLINE;
+			this->status = ONLINE;
 
-	if (last_status != status)
+	if (last_status != this->status)
 	{
-		if (status == ONLINE)
+		if (this->status == ONLINE)
 			messageConnection(*commands.begin());
 		sort();
 	}
 }
+
 
 User::User(int sockfd, struct sockaddr_in addr) : command_function(), sockfd(sockfd), last_ping(std::time(0)), buffer(), status(PASSWORD), nickname(), username(), realname(), host_addr(), hostname(), mode("i")
 {
@@ -141,15 +147,6 @@ User::~User()
 {
 	close(sockfd);
 }
-
-// void		User::send(std::string const str) const
-// {
-// 	std::string tmp;
-
-// 	tmp = "ft_irc: ";
-// 	tmp += str;
-// 	::send(this->sockfd, tmp.c_str(), tmp.length(), 0);
-// }
 
 void User::sendMessage(User &toUser, std::string message)
 {
@@ -234,9 +231,9 @@ std::string User::getRealname(void) { return (this->realname); }
 std::string User::getNickname(void) { return (this->nickname); }
 std::string User::getHostname(void) { return (this->hostname); }
 std::string User::getChannel(void) { return (this->channel); }
-userStatus User::getStatus(void) { return (status); }
-time_t User::getLastPing(void) { return (last_ping); };
-int User::getFd(void) { return (sockfd); }
+userStatus User::getStatus(void) { return (this->status); }
+time_t User::getLastPing(void) { return (this->last_ping); };
+int User::getFd(void) { return (this->sockfd); }
 std::string User::getHost(void)
 {
 	if (hostname.size())
