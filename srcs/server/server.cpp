@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:39:33 by thamon            #+#    #+#             */
-/*   Updated: 2023/03/30 18:51:52 by thamon           ###   ########.fr       */
+/*   Updated: 2023/04/05 13:38:22 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,12 +94,7 @@ void Server::init()
 
 void Server::acceptUser()
 {
-	// size_t maxUsers = 10;
 	char buffer[42];
-
-	// if (users.size() == maxUsers)
-	// 	if (shutdown(sockfd, SHUT_RD) == -1)
-	// 		return;
 
 	struct sockaddr_in address;
 	socklen_t client_len = sizeof(address);
@@ -116,7 +111,7 @@ void Server::acceptUser()
 	fds.back().events = POLLIN;
 
 	// Affiche le nombre de users connectes
-	sprintf(buffer, "\nNumber of users connected : %lu/\n", users.size());
+	sprintf(buffer, "\nNumber of users connected : %lu\n", users.size());
 	display.define(2, buffer);
 }
 
