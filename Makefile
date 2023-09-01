@@ -37,18 +37,7 @@ SRCS_CPP			=	main.cpp					\
 						commands/commands_name/moderation/MODE.cpp	\
 					    commands/commands_name/moderation/KICK.cpp	\
 					    commands/commands_name/moderation/OPER.cpp	\
-					    commands/commands_name/moderation/KILL.cpp	\
-						# commands/commands_name/moderation/BAN.cpp	\
-						# commands/commands_name/moderation/BANLIST.cpp	\
-						# commands/commands_name/moderation/CLEAR.cpp	\
-						# commands/commands_name/moderation/DEOP.cpp	\
-						# commands/commands_name/moderation/INVITE.cpp	\
-						# commands/commands_name/moderation/KICKALL.cpp	\
-						# commands/commands_name/moderation/KICKBAN.cpp	\
-						# commands/commands_name/moderation/OP.cpp	\
-						# commands/commands_name/moderation/TOPIC.cpp	\
-						# commands/commands_name/moderation/UNBAN.cpp	\
-						# commands/commands_name/moderation/WHOIS.cpp
+					    commands/commands_name/moderation/KILL.cpp
 
 CPP					=	clang++
 FLAGS				=	-Wall -Wextra -Werror -std=c++98 -g

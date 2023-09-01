@@ -6,7 +6,7 @@
 /*   By: thamon <thamon@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/03 23:39:33 by thamon            #+#    #+#             */
-/*   Updated: 2023/04/05 13:38:22 by thamon           ###   ########.fr       */
+/*   Updated: 2023/04/05 17:47:36 by thamon           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,19 +122,19 @@ void Server::execute()
 	if (poll(&fds[0], fds.size(), (60 * 1000) / 10) == -1)
 		return;
 
-	display.define(20, "null");
+	display.define(20, "wait");
 	// Je vérifie si un nouvel utilisateur cherche à se connecter. Si oui, je le accepte, sinon je vais lire les informations des utilisateurs.
 	if (fds[0].revents == POLLIN)
 		acceptUser();
 	else
 	{
-		display.define(20, "null");
+		display.define(20, "wait");
 		for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); ++it)
 		{
 			if ((*it).revents == POLLIN)
 			{
 				this->users[(*it).fd]->readUserInfo(this);
-				display.define(20, "SALUT");
+				display.define(20, "Send");
 			}
 		}
 	}
